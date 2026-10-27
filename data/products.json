@@ -1,0 +1,26 @@
+[
+  {
+    "id": "clocks",
+    "title": "Clocks",
+    "artist": "Coldplay",
+    "youtubeId": "dQw4w9WgXcQ",
+    "description": "The iconic piano riff, broken down for beginners.",
+    "tiers": {
+      "free":   { "label": "Short Preview",  "price": 0,   "file": "clocks-free.mid" },
+      "chorus": { "label": "Chorus MIDI",    "price": 300, "file": "clocks-chorus.mid" },
+      "full":   { "label": "Full Song MIDI", "price": 700, "file": "clocks-full.mid" }
+    }
+  },
+  {
+    "id": "river-flows",
+    "title": "River Flows in You",
+    "artist": "Yiruma",
+    "youtubeId": "PLACEHOLDER_ID",
+    "description": "A modern piano classic for finger independence and pedal control.",
+    "tiers": {
+      "free":   { "label": "Short Preview",  "price": 0,   "file": "river-free.mid" },
+      "chorus": { "label": "Chorus MIDI",    "price": 300, "file": "river-chorus.mid" },
+      "full":   { "label": "Full Song MIDI", "price": 700, "file": "river-full.mid" }
+    }
+  }
+]

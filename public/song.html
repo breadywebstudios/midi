@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loadingâ€¦ â€” KeyMIDI</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="site-header"><a href="/" class="logo">KeyMIDI</a></header>
+  <main id="song-root"><p class="loading">Loading songâ€¦</p></main>
+  <footer><p>Digital downloads â€” no refunds after download.</p></footer>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const root = document.getElementById("song-root");
+    if (!id) {
+      root.innerHTML = '<p class="error">No song specified. <a href="/">Go home</a></p>';
+    } else {
+      fetch("/api/products/" + encodeURIComponent(id))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(renderSong)
+        .catch(() => { root.innerHTML = '<p class="error">Song not found. <a href="/">Go home</a></p>'; });
+    }
+    function renderSong(p) {
+      document.title = p.title + " by " + p.artist + " â€” KeyMIDI";
+      const yt = p.youtubeId && p.youtubeId !== "PLACEHOLDER_ID"
+        ? '<div class="video-wrap"><iframe src="https://www.youtube.com/embed/' + p.youtubeId + '" title="Tutorial" allowfullscreen></iframe></div>'
+        : '<p class="video-placeholder">Tutorial coming soon.</p>';
+      root.innerHTML =
+        '<article class="song-detail">' +
+          '<a href="/" class="back">&larr; Back to all songs</a>' +
+          '<h1>' + p.title + '</h1>' +
+          '<p class="artist">by ' + p.artist + '</p>' +
+          '<p class="desc">' + p.description + '</p>' +
+          yt +
+          '<div class="tiers">' +
+            '<div class="tier"><h3>' + p.tiers.free.label + '</h3><p class="price">Free</p><a class="btn btn-free" href="/download/free/' + p.id + '">Download preview</a></div>' +
+            '<div class="tier featured"><h3>' + p.tiers.chorus.label + '</h3><p class="price">$' + (p.tiers.chorus.price / 100).toFixed(2) + '</p><button class="btn btn-buy" data-id="' + p.id + '" data-tier="chorus">Buy chorus</button></div>' +
+            '<div class="tier"><h3>' + p.tiers.full.label + '</h3><p class="price">$' + (p.tiers.full.price / 100).toFixed(2) + '</p><button class="btn btn-buy" data-id="' + p.id + '" data-tier="full">Buy full song</button></div>' +
+          '</div>' +
+          '<p class="note">After payment you will get an instant download link, valid for 24 hours.</p>' +
+        '</article>';
+      root.querySelectorAll(".btn-buy").forEach(btn => {
+        btn.addEventListener("click", () => startCheckout(btn.dataset.id, btn.dataset.tier));
+      });
+    }
+    async function startCheckout(productId, tier) {
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, tier })
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else alert("Could not start checkout.");
+      } catch { alert("Network error."); }
+    }
+  </script>
+</body>
+</html>

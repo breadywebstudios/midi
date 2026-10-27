@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thank you â€” KeyMIDI</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="site-header"><a href="/" class="logo">KeyMIDI</a></header>
+  <main id="success-root"><p class="loading">Verifying your paymentâ€¦</p></main>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const root = document.getElementById("success-root");
+    if (!sessionId) {
+      root.innerHTML = '<p class="error">Missing payment session. <a href="/">Go home</a></p>';
+    } else {
+      fetch("/api/verify-session?session_id=" + encodeURIComponent(sessionId))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(renderSuccess)
+        .catch(() => { root.innerHTML = '<p class="error">Could not verify payment.</p>'; });
+    }
+    function renderSuccess(data) {
+      root.innerHTML =
+        '<article class="success">' +
+          '<h1>Thank you!</h1>' +
+          '<p>Your purchase: <strong>' + data.productTitle + ' â€” ' + data.tier + '</strong></p>' +
+          '<a class="btn btn-buy" href="' + data.downloadUrl + '">Download MIDI now</a>' +
+          '<p class="note">This link expires in 24 hours.</p>' +
+          '<p class="note">Tutorial: <a href="https://www.youtube.com/watch?v=' + data.youtubeId + '" target="_blank" rel="noopener">Watch on YouTube</a></p>' +
+        '</article>';
+    }
+  </script>
+</body>
+</html>
